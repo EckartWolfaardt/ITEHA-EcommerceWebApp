@@ -1,0 +1,228 @@
+﻿<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - E-commerce Site</title>
+    <link rel="stylesheet" href="~/css/styles.css" />
+</head>
+<body>
+    <header>
+        <h1>E-commerce Site</h1>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/Cart">Cart</a>
+            <a href="/Admin">Admin</a>
+        </nav>
+    </header>
+    <main>
+        @RenderBody()
+    </main>
+</body>
+</html>
+
+    @model IEnumerable<EcommerceSite.Models.Product>
+
+    @{
+    ViewData["Title"] = "Product List";
+    }
+
+    <div class="product-grid">
+        @foreach (var product in Model)
+        {
+        <div class="product-item">
+            <img src="@product.ImageUrl" alt="@product.Name" />
+            <h2>@product.Name</h2>
+            <p>$@product.Price</p>
+            <a href="/Product/Details/@product.Id">View Details</a>
+        </div>
+        }
+    </div>
+
+
+    @model EcommerceSite.Models.Product
+
+    @{
+    ViewData["Title"] = "Product Details";
+    }
+
+    <div class="product-detail">
+        <img src="@Model.ImageUrl" alt="@Model.Name" />
+        <h1>@Model.Name</h1>
+        <p>$@Model.Price</p>
+        <p>@Model.Description</p>
+        <form asp-action="Add" asp-controller="Cart" method="post">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <input type="number" name="quantity" value="1" min="1" />
+            <button type="submit">Add to Cart</button>
+        </form>
+    </div>
+
+    @model IEnumerable<EcommerceSite.Models.CartItem>
+
+        @{
+        ViewData["Title"] = "Shopping Cart";
+        }
+
+        <div class="cart">
+            <h2>Your Cart</h2>
+            <table>
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                    <th>Actions</th>
+                </tr>
+                @foreach (var item in Model)
+                {
+                <tr>
+                    <td>@item.Product.Name</td>
+                    <td>@item.Quantity</td>
+                    <td>$@item.Product.Price</td>
+                    <td>$@(item.Quantity * item.Product.Price)</td>
+                    <td>
+                        <form asp-action="Remove" asp-controller="Cart" method="post">
+                            <input type="hidden" name="id" value="@item.Id" />
+                            <button type="submit">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                }
+            </table>
+            <h3>Total: $@(Model.Sum(item => item.Quantity * item.Product.Price))</h3>
+            <a href="/Checkout">Proceed to Checkout</a>
+        </div>
+
+        @model IEnumerable<EcommerceSite.Models.CartItem>
+
+            @{
+            ViewData["Title"] = "Shopping Cart";
+            }
+
+            <div class="cart">
+                <h2>Your Cart</h2>
+                <table>
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                        <th>Actions</th>
+                    </tr>
+                    @foreach (var item in Model)
+                    {
+                    <tr>
+                        <td>@item.Product.Name</td>
+                        <td>@item.Quantity</td>
+                        <td>$@item.Product.Price</td>
+                        <td>$@(item.Quantity * item.Product.Price)</td>
+                        <td>
+                            <form asp-action="Remove" asp-controller="Cart" method="post">
+                                <input type="hidden" name="id" value="@item.Id" />
+                                <button type="submit">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                    }
+                </table>
+                <h3>Total: $@(Model.Sum(item => item.Quantity * item.Product.Price))</h3>
+                <a href="/Checkout">Proceed to Checkout</a>
+            </div>
+
+            @model IEnumerable<EcommerceSite.Models.CartItem>
+
+                @{
+                ViewData["Title"] = "Checkout";
+                }
+
+                <div class="checkout">
+                    <h2>Checkout</h2>
+                    <form asp-action="Complete" method="post">
+                        <label for="name">Name:</label>
+                        <input type="text" id="name" name="name" required />
+                        <button type="submit">Place Order</button>
+                    </form>
+                </div>
+
+                @model IEnumerable<EcommerceSite.Models.Product>
+
+                    @{
+                    ViewData["Title"] = "Admin Panel";
+                    }
+
+                    <h2>Admin Panel</h2>
+                    <form asp-action="Add" method="post">
+                        <label for="name">Name:</label>
+                        <input type="text" id="name" name="name" required />
+                        <label for="price">Price:</label>
+                        <input type="number" id="price" name="price" step="0.01" required />
+                        <label for="description">Description:</label>
+                        <textarea id="description" name="description" required></textarea>
+                        <label for="imageUrl">Image URL:</label>
+                        <input type="text" id="imageUrl" name="imageUrl" required />
+                        <button type="submit">Add Product</button>
+                    </form>
+
+                    <h3>Products</h3>
+                    <table>
+                        <tr>
+                            <th>Name</th>
+                            <th>Price</th>
+                            <th>Actions</th>
+                        </tr>
+                        @foreach (var product in Model)
+                        {
+                        <tr>
+                            <td>@product.Name</td>
+                            <td>$@product.Price</td>
+                            <td>
+                                <form asp-action="Delete" method="post">
+                                    <input type="hidden" name="id" value="@product.Id" />
+                                    <button type="submit">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        }
+                    </table>
+
+                    body {
+                    font-family: Arial, sans-serif;
+                    margin: 0;
+                    padding: 0;
+                    }
+
+                    .product-grid {
+                    display: grid;
+                    grid-template-columns: repeat(4, 1fr);
+                    gap: 10px;
+                    padding: 20px;
+                    }
+
+                    .product-item {
+                    border: 1px solid #ccc;
+                    padding: 10px;
+                    text-align: center;
+                    }
+
+                    .product-item img {
+                    max-width: 100%;
+                    }
+
+                    .cart table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    }
+
+                    .cart table th, .cart table td {
+                    border: 1px solid #ccc;
+                    padding: 10px;
+                    text-align: left;
+                    }
+
+                    .cart table th {
+                    background-color: #f4f4f4;
+                    }
+
+
